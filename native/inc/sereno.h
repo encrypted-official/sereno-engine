@@ -11,11 +11,14 @@ extern "C" {
 #define SERENO_VERSION_MINOR 1
 #define SERENO_VERSION_PATCH 0
 
+typedef struct LibraryCTX LibraryCTX;
 typedef struct PlayerCTX PlayerCTX;
 
 typedef struct SerenoCTX
 {
     bool initialized;
+    
+    LibraryCTX* library;
     PlayerCTX* player;
 
 } SerenoCTX;
@@ -23,7 +26,7 @@ typedef struct SerenoCTX
 SerenoCTX* sereno_create(void);
 void sereno_destroy(SerenoCTX* ctx);
 
-bool sereno_initialize(SerenoCTX* ctx);
+bool sereno_init(SerenoCTX* ctx);
 void sereno_shutdown(SerenoCTX* ctx);
 
 int sereno_version_major(void);

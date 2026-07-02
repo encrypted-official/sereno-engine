@@ -12,7 +12,7 @@ int main(void)
         return 1;
     }
 
-    if (!sereno_initialize(ctx))
+    if (!sereno_init(ctx))
     {
         printf("Initialization failed.\n");
 
