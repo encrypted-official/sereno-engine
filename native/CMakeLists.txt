@@ -13,6 +13,22 @@ file(GLOB_RECURSE SERENO_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
 )
 
+list(FILTER SERENO_SOURCES EXCLUDE REGEX ".*/platform/scanner_.*\\.c$")
+
+if(WIN32)
+    list(APPEND SERENO_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/platform/scanner_windows.c")
+# elseif(ANDROID)
+#     list(APPEND SERENO_SOURCES
+#         "${CMAKE_CURRENT_SOURCE_DIR}/src/platform/scanner_android.c")
+# elseif(APPLE)
+#     list(APPEND SERENO_SOURCES
+#         "${CMAKE_CURRENT_SOURCE_DIR}/src/platform/scanner_macos.c")
+# elseif(UNIX)
+#     list(APPEND SERENO_SOURCES
+#         "${CMAKE_CURRENT_SOURCE_DIR}/src/platform/scanner_linux.c")
+endif()
+
 if(SERENO_BUILD_SHARED)
     add_library(sereno SHARED ${SERENO_SOURCES})
 else()

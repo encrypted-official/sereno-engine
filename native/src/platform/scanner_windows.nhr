@@ -1,0 +1,108 @@
+#include <windows.h>
+#include <shlobj.h>
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <wchar.h>
+
+#include "scanner.h"
+
+static bool scan_dir(ScannerCTX* s_ctx, const wchar_t* dir);
+static bool is_audio_file(const wchar_t* fname);
+
+bool scanner_scan_all(ScannerCTX* s_ctx)
+{
+    PWSTR musicDir = NULL;
+
+    HRESULT hr = SHGetKnownFolderPath(
+        &FOLDERID_Music,
+        0,
+        NULL,
+        &musicDir
+    );
+
+    if (FAILED(hr))
+        return false;
+
+    bool success = scan_dir(
+        s_ctx,
+        musicDir
+    );
+
+    CoTaskMemFree(musicDir);
+
+    return success;
+}
+
+static bool scan_dir(ScannerCTX* s_ctx, const wchar_t* dir)
+{
+    wchar_t searchPath[MAX_PATH];
+
+    swprintf(
+        searchPath,
+        MAX_PATH,
+        L"%ls\\*",
+        dir
+    );
+
+    WIN32_FIND_DATAW findData;
+    HANDLE handle = FindFirstFileW(searchPath, &findData);
+
+    if (handle == INVALID_HANDLE_VALUE)
+        return false;
+
+    do
+    {
+        if (wcscmp(findData.cFileName, L".") == 0)
+            continue;
+
+        if (wcscmp(findData.cFileName, L"..") == 0)
+            continue;
+
+        wchar_t fullPath[MAX_PATH];
+
+        swprintf(
+            fullPath,
+            MAX_PATH,
+            L"%ls\\%ls",
+            dir,
+            findData.cFileName
+        );
+
+        if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            scan_dir(s_ctx, fullPath );
+            continue;
+        }
+
+        if (!is_audio_file(findData.cFileName))
+            continue;
+
+        wprintf(L"%ls\n", fullPath);
+
+    } while (FindNextFileW(handle, &findData));
+
+    FindClose(handle);
+    return true;
+}
+
+static bool is_audio_file(const wchar_t* fname)
+{
+    const wchar_t* extension = wcsrchr(fname, L'.');
+
+    if (extension == NULL)
+        return false;
+
+    if (_wcsicmp(extension, L".mp3") == 0 ||
+        _wcsicmp(extension, L".flac") == 0 ||
+        _wcsicmp(extension, L".wav") == 0 ||
+        _wcsicmp(extension, L".ogg") == 0 ||
+        _wcsicmp(extension, L".opus") == 0 ||
+        _wcsicmp(extension, L".aac") == 0 ||
+        _wcsicmp(extension, L".m    4a") == 0
+    )
+        return true;
+
+    return false;
+}

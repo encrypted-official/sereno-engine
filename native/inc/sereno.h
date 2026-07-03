@@ -13,6 +13,7 @@ extern "C" {
 
 typedef struct LibraryCTX LibraryCTX;
 typedef struct PlayerCTX PlayerCTX;
+typedef struct ScannerCTX ScannerCTX;
 
 typedef struct SerenoCTX
 {
@@ -20,6 +21,7 @@ typedef struct SerenoCTX
     
     LibraryCTX* library;
     PlayerCTX* player;
+    ScannerCTX* scanner;
 
 } SerenoCTX;
 
@@ -28,6 +30,8 @@ void sereno_destroy(SerenoCTX* ctx);
 
 bool sereno_init(SerenoCTX* ctx);
 void sereno_shutdown(SerenoCTX* ctx);
+
+bool sereno_scan_library(SerenoCTX* ctx);
 
 int sereno_version_major(void);
 int sereno_version_minor(void);

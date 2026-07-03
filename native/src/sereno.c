@@ -4,6 +4,7 @@
 
 #include "library.h"
 #include "player.h"
+#include "scanner.h"
 
 SerenoCTX* sereno_create(void)
 {
@@ -16,6 +17,7 @@ SerenoCTX* sereno_create(void)
 
     ctx->library = NULL;
     ctx->player = NULL;
+    ctx->scanner = NULL;
 
     return ctx;
 }
@@ -53,6 +55,14 @@ bool sereno_init(SerenoCTX* ctx)
     if (!player_init(ctx->player))
         goto fail;
 
+    ctx->scanner = scanner_create();
+
+    if (ctx->scanner == NULL)
+        goto fail;
+
+    if (!scanner_init(ctx->scanner))
+        goto fail;
+
     ctx->initialized = true;
     return true;
 
@@ -74,7 +84,19 @@ void sereno_shutdown(SerenoCTX* ctx)
     player_destroy(ctx->player);
     ctx->player = NULL;
 
+    scanner_shutdown(ctx->scanner);
+    scanner_destroy(ctx->scanner);
+    ctx->scanner = NULL;
+
     ctx->initialized = false;
+}
+
+bool sereno_scan_library(SerenoCTX* ctx)
+{
+    if (ctx == NULL)
+        return false;
+
+    return scanner_scan_all(ctx->scanner);
 }
 
 int sereno_version_major(void)
