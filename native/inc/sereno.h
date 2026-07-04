@@ -25,14 +25,16 @@ typedef struct SerenoCTX
 
 } SerenoCTX;
 
+/* control */
 SerenoCTX* sereno_create(void);
 void sereno_destroy(SerenoCTX* ctx);
-
 bool sereno_init(SerenoCTX* ctx);
 void sereno_shutdown(SerenoCTX* ctx);
 
-bool sereno_scan_library(SerenoCTX* ctx);
+/* command */
+bool sereno_load_music_all_dir(SerenoCTX* ctx);
 
+/* misc */
 int sereno_version_major(void);
 int sereno_version_minor(void);
 int sereno_version_patch(void);

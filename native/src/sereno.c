@@ -6,6 +6,8 @@
 #include "player.h"
 #include "scanner.h"
 
+/* control */
+
 SerenoCTX* sereno_create(void)
 {
     SerenoCTX* ctx = malloc(sizeof(*ctx));
@@ -91,7 +93,9 @@ void sereno_shutdown(SerenoCTX* ctx)
     ctx->initialized = false;
 }
 
-bool sereno_scan_library(SerenoCTX* ctx)
+/* command */
+
+bool sereno_load_music_all_dir(SerenoCTX* ctx)
 {
     if (ctx == NULL)
         return false;
@@ -99,13 +103,15 @@ bool sereno_scan_library(SerenoCTX* ctx)
     return scanner_scan_all(ctx->scanner);
 }
 
+/* misc */
+
 int sereno_version_major(void)
 {
     return SERENO_VERSION_MAJOR;
 }
 
 int sereno_version_minor(void)
-{
+{ 
     return SERENO_VERSION_MINOR;
 }
 
