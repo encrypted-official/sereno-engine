@@ -26,9 +26,10 @@ static bool is_audio(const wchar_t* fName)
 	return false;
 }
 
-static bool scan_dir(const PWSTR dir)
+static bool scan_dir(char *pathList[], const PWSTR dir, int* c)
 {
-	static wchar_t path[MAX_PATH + 1];
+	wchar_t path[MAX_PATH];
+	wchar_t fullPath[MAX_PATH];
 	WIN32_FIND_DATAW fData;
 	
 	swprintf_s(
@@ -60,32 +61,50 @@ static bool scan_dir(const PWSTR dir)
 				fData.cFileName
 			);
 			
-			scan_dir(path);
+			if(!scan_dir(pathList, path, c)) {goto fail;}
+			continue;
 		}
 		
 		if (is_audio(fData.cFileName))
-			// music file found hopefully.
-		
-		// debug printf.
-		printf("%S\n", fData.cFileName);
+		{
+			swprintf_s(
+				fullPath,
+				MAX_PATH,
+				L"%s\\%s",
+				dir,
+				fData.cFileName
+			);
+
+			int size = WideCharToMultiByte(CP_UTF8, 0, fullPath, -1, NULL, 0, NULL, NULL);
+			if (size == 0) {goto fail;}
+
+			pathList[*c] = malloc(size);
+			if (pathList[*c] == NULL) {goto fail;}
+			
+			if (WideCharToMultiByte(CP_UTF8, 0, fullPath, -1, pathList[*c], size, NULL, NULL) == 0)
+			{
+				free(pathList[*c]);
+				goto fail;
+			}
+			else {(*c)++;}
+		}
 			
 	} while (FindNextFileW(hFind, &fData));
 		
 	FindClose(hFind);
 	return true;
+
+	fail:
+		FindClose(hFind);
+		return false;
 }
 
 static void get_win_path(KNOWNFOLDERID rID, PWSTR* rPath, HRESULT* hr)
 {
-	*hr = SHGetKnownFolderPath(
-		&rID,	// REFKNOWNFOLDERID
-		0,	// default KNOWN_FOLDER_FLAG flag.
-		NULL,	// forces current user
-		rPath
-	);
+	*hr = SHGetKnownFolderPath(&rID, 0,	NULL, rPath);
 }	
 
-bool scanner_scan_all(ScannerCTX* s_ctx)
+bool scanner_scan_filepaths(ScannerCTX* s_ctx, ScanType type)
 {
 	KNOWNFOLDERID impPaths[] = {
 		FOLDERID_Desktop,
@@ -98,16 +117,22 @@ bool scanner_scan_all(ScannerCTX* s_ctx)
 	
 	PWSTR rPath = NULL;
 	HRESULT hr;
+
+	int c = 0;
 	
 	for (short i = 0; i < sizeof(impPaths)/sizeof(impPaths[0]); ++i)
 	{
 		get_win_path(impPaths[i], &rPath, &hr);
-	
-		if (FAILED(hr))
-			return false;
-	
-		scan_dir(rPath);
+		if (FAILED(hr)) {return false;}
+
+		scan_dir(s_ctx->pathList, rPath, &c);
 	}
+
+	/* // debug print.
+	for (int i = 0; i < 400; ++i) {
+		printf("c:%d name:%s\n",i, s_ctx->pathList[i]);
+	}
+	*/
 	
 	return true;
 }

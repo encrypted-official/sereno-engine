@@ -27,7 +27,7 @@ int main(void)
 
     printf("Initialization successful.\n");
 
-    sereno_scan_library(ctx);
+    sereno_fetch_library_default(ctx);
 
     sereno_shutdown(ctx);
     sereno_destroy(ctx);

@@ -15,14 +15,11 @@ typedef struct LibraryCTX LibraryCTX;
 typedef struct PlayerCTX PlayerCTX;
 typedef struct ScannerCTX ScannerCTX;
 
-typedef struct SerenoCTX
-{
+typedef struct SerenoCTX {
     bool initialized;
-    
     LibraryCTX* library;
     PlayerCTX* player;
     ScannerCTX* scanner;
-
 } SerenoCTX;
 
 /* control */
@@ -32,7 +29,9 @@ bool sereno_init(SerenoCTX* ctx);
 void sereno_shutdown(SerenoCTX* ctx);
 
 /* command */
-bool sereno_load_music_all_dir(SerenoCTX* ctx);
+bool sereno_fetch_library_default(SerenoCTX* ctx);
+bool sereno_fetch_library_with_inc(SerenoCTX* ctx);
+bool sereno_fetch_library_with_inc_exc(SerenoCTX* ctx);
 
 /* misc */
 int sereno_version_major(void);
@@ -42,5 +41,4 @@ int sereno_version_patch(void);
 #ifdef __cplusplus
 }
 #endif
-
 #endif

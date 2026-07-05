@@ -11,12 +11,9 @@
 SerenoCTX* sereno_create(void)
 {
     SerenoCTX* ctx = malloc(sizeof(*ctx));
-
-    if (ctx == NULL)
-        return NULL;
+    if (ctx == NULL) {return NULL;}
 
     ctx->initialized = false;
-
     ctx->library = NULL;
     ctx->player = NULL;
     ctx->scanner = NULL;
@@ -26,8 +23,7 @@ SerenoCTX* sereno_create(void)
 
 void sereno_destroy(SerenoCTX* ctx)
 {
-    if (ctx == NULL)
-        return;
+    if (ctx == NULL) {return;}
 
     sereno_shutdown(ctx);
     free(ctx);
@@ -35,35 +31,23 @@ void sereno_destroy(SerenoCTX* ctx)
 
 bool sereno_init(SerenoCTX* ctx)
 {
-    if (ctx == NULL)
-        return false;
-
-    if (ctx->initialized)
-        return true;
+    if (ctx == NULL) {return false;}
+    if (ctx->initialized) {return true;}
 
     ctx->library = library_create();
+    if (ctx->library == NULL) {goto fail;}
 
-    if (ctx->library == NULL)
-        goto fail;
-
-    if (!library_init(ctx->library))
-        goto fail;
+    if (!library_init(ctx->library)) {goto fail;}
 
     ctx->player = player_create();
-    
-    if (ctx->player == NULL)
-        goto fail;
+    if (ctx->player == NULL) {goto fail;}
 
-    if (!player_init(ctx->player))
-        goto fail;
+    if (!player_init(ctx->player)) {goto fail;}
 
     ctx->scanner = scanner_create();
+    if (ctx->scanner == NULL) {goto fail;}
 
-    if (ctx->scanner == NULL)
-        goto fail;
-
-    if (!scanner_init(ctx->scanner))
-        goto fail;
+    if (!scanner_init(ctx->scanner)) {goto fail;}
 
     ctx->initialized = true;
     return true;
@@ -75,8 +59,7 @@ bool sereno_init(SerenoCTX* ctx)
 
 void sereno_shutdown(SerenoCTX* ctx)
 {
-    if (ctx == NULL)
-        return;
+    if (ctx == NULL) {return;}
 
     library_shutdown(ctx->library);
     library_destroy(ctx->library);
@@ -95,27 +78,26 @@ void sereno_shutdown(SerenoCTX* ctx)
 
 /* command */
 
-bool sereno_load_music_all_dir(SerenoCTX* ctx)
+bool sereno_fetch_library_default(SerenoCTX* ctx)
 {
-    if (ctx == NULL)
-        return false;
+    if (ctx == NULL) {return false;}
+    return scanner_scan_filepaths(ctx->scanner, SCANNER_SCAN_DEFAULT);
+}
 
-    return scanner_scan_all(ctx->scanner);
+bool sereno_fetch_library_with_inc(SerenoCTX* ctx)
+{
+    if (ctx == NULL) {return false;}
+    return scanner_scan_filepaths(ctx->scanner, SCANNER_SCAN_WITH_INC);
+}
+
+bool sereno_fetch_library_with_inc_exc(SerenoCTX* ctx)
+{
+    if (ctx == NULL) {return false;}
+    return scanner_scan_filepaths(ctx->scanner, SCANNER_SCAN_WITH_INC_EXC);
 }
 
 /* misc */
 
-int sereno_version_major(void)
-{
-    return SERENO_VERSION_MAJOR;
-}
-
-int sereno_version_minor(void)
-{ 
-    return SERENO_VERSION_MINOR;
-}
-
-int sereno_version_patch(void)
-{
-    return SERENO_VERSION_PATCH;
-}
+int sereno_version_major(void) {return SERENO_VERSION_MAJOR;}
+int sereno_version_minor(void) {return SERENO_VERSION_MINOR;}
+int sereno_version_patch(void) {return SERENO_VERSION_PATCH;}
